@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html prefix="og: https://ogp.me/ns#" dir="ltr" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Chat</title>
+    <link rel="stylesheet" href="./assets/vendor/@fortawesome/fontawesome-free/css/all.min.css"/>
+    <link rel="stylesheet" href="./assets/styles/tailwind.css" />
+    <link rel="stylesheet" href="./assets/styles/tailwind.min.css">
+    <link rel="stylesheet" href="./assets/styles/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="./assets/styles/highlight.css">
+</head>
+<body style="--tw-bg-opacity: 1; background-color: rgba(226, 232, 240, var(--tw-bg-opacity)); --tw-ring-shadow: none;">
+
+
+
+<div class="lg:text-right lg:self-center relative w-full">
+    <div class="flex justify-center border-0 flex-col min-w-0 break-words bg-white w-full rounded-lg">
+        <div id="message-list" class="flex flex-col-reverse flex-auto  overflow-auto overflow-x-hidden bg-blueGray-200" style="margin-bottom: 90px; bottom: 0; position: fixed; top: 0; width: 100%;">
+        </div>
+        <div class="bg-white rounded-b-lg px-4 py-3 border-t border-blueGray-300" style="position: fixed; bottom: 0; width: 100%;">
+            <div class="my-4 mb-3 pt-0 relative">
+                <div class="mb-3 pt-0">
+                    <input id="message-input" placeholder="Введите текст сообщения" class="border-blueGray-300 px-3 py-2 text-sm  w-full relative bg-white rounded-md outline-none focus:ring focus:ring-lightBlue-500 focus:ring-1 focus:border-lightBlue-500 border border-solid transition duration-200 ">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const messageList = document.getElementById('message-list');
+    document.getElementById('message-input').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            Data = new Date();
+            const message = event.target.value;
+            messageList.innerHTML = `
+            <div class="message-item justify-end text-right flex flex-wrap">
+                <a href="javascript:;">
+                    <div class="px-4 relative w-auto">
+                        <div class="relative flex px-4 py-2 my-4 break-words shadow-lg rounded-lg bg-lightBlue-500 text-white">
+                            <div class="user-message">
+                                <p class="mb-1 text-lg leading-relaxed font-normal  text-left">${message}</p>
+                                <p class="block uppercase font-semibold opacity-75 text-sm mb-0">
+                                    <span class="mr-2">${Data.toLocaleTimeString()}</span><i class="fas fa-check"></i>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>` + messageList.innerHTML;
+
+            event.target.value = '';
+
+            messageList.innerHTML = `<div id="loader" class="justify-start text-left flex flex-wrap"><div class="px-4 relative w-auto"><div class="relative flex px-4 py-2 my-4 break-words shadow-lg rounded-lg bg-blueGray-100 text-blueGray-800"><div><p class="mb-1 text-lg leading-relaxed font-normal text-left">Думает...</p></div></div></div></div>` + messageList.innerHTML;
+
+            fetch('http://45.9.41.17:8080/send?message=' + message, {
+                method: 'GET'
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    Data = new Date();
+                    messageList.innerHTML = messageList.innerHTML.replace('<div id="loader" class="justify-start text-left flex flex-wrap"><div class="px-4 relative w-auto"><div class="relative flex px-4 py-2 my-4 break-words shadow-lg rounded-lg bg-blueGray-100 text-blueGray-800"><div><p class="mb-1 text-lg leading-relaxed font-normal text-left">Думает...</p></div></div></div></div>', '');
+                    messageList.innerHTML = `<div class="justify-start text-left flex flex-wrap">
+                    <a href="javascript:;">
+                        <div class="px-4 relative w-auto">
+                            <div class="relative flex px-4 py-2 my-4 break-words shadow-lg rounded-lg bg-blueGray-100 text-blueGray-800">
+                                <div class="message-item">
+                                    <p class="bot-message mb-1 text-lg leading-relaxed font-normal text-left">${data.data}</p>
+                                    <p class="block uppercase font-semibold opacity-75 text-sm mb-0">
+                                        <span class="mr-2">${Data.toLocaleTimeString()}</span><i class="fas fa-check"></i>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>` + messageList.innerHTML;
+                });
+        }
+    });
+</script>
+<script src="./assets/js/notus.js"></script>
+<script src="./assets/js/popper.js"></script>
+<script src="./assets/js/plugins/chart.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
+<script src="./assets/js/map.js"></script>
+</body>
+</html>
